@@ -3,9 +3,10 @@ const callDB= require('./db')
 const userModel= require('./model')
 const express = require('express')
 const path = require('path');
-const app = express()
-const bcrypt= require('bcrypt') 
+const app = express() 
 const {body, validationResult}= require('express-validator');
+const bcrypt= require('bcrypt')
+const jwt =require('jsonwebtoken')
 const port = 3000
 
 app.use(express.urlencoded({ extended: true }));
@@ -36,7 +37,7 @@ app.post('/register',[body('email').isEmail(), body('pwd').isLength({min:3})],as
     if(!DBcheck){
     const obj=new userModel({email:email, password:hashedPass})
     await obj.save()
-    res.redirect('/login.html');
+    return res.redirect('/login.html');
     }
     else res.send(`
       <script>
@@ -52,11 +53,14 @@ app.post('/login', async function (req, res){
   const loginPass=req.body.loginPass;
 
   const DBEmail=await userModel.findOne({email:loginEmail});
-  if(!DBEmail) res.send('Invalid Email');
+  if(!DBEmail) res.send(`<script>
+    alert('Email not found');
+    location.href='./login.html';
+    </script>`);
   else{
     const compare=await bcrypt.compare(loginPass, DBEmail.password)
     if(compare===true){
-      res.redirect('/result.html')
+      return res.redirect('/result.html')
     }
     else res.send(`<script>
       alert('Credentials do not match'); 
