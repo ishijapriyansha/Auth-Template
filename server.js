@@ -1,4 +1,3 @@
-const mongoose = require('mongoose')
 const callDB= require('./db')
 const userModel= require('./model')
 const express = require('express')
@@ -6,18 +5,20 @@ const path = require('path');
 const app = express() 
 const {body, validationResult}= require('express-validator');
 const bcrypt= require('bcrypt')
-const jwt =require('jsonwebtoken')
+const jwt =require('jsonwebtoken');
+const checkToken = require('./checkToken');
 const port = 3000
+const secretkey="ishija$2"
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
+
 async function startServer(){
 await callDB();
 
-
-app.get('/', (req, res) => {
-  res.send('Hello World!')
+app.get('/', (req,res) => {
+  res.send('Welcome to this server. Add /register2.html after the url to discover more!')
 })
 
 app.post('/register',[body('email').isEmail(), body('pwd').isLength({min:3})],async function (req, res){
@@ -53,20 +54,29 @@ app.post('/login', async function (req, res){
   const loginPass=req.body.loginPass;
 
   const DBEmail=await userModel.findOne({email:loginEmail});
-  if(!DBEmail) res.send(`<script>
+  if(!DBEmail) return res.send(`<script>
     alert('Email not found');
     location.href='./login.html';
     </script>`);
   else{
     const compare=await bcrypt.compare(loginPass, DBEmail.password)
     if(compare===true){
-      return res.redirect('/result.html')
+      const token= jwt.sign({email:DBEmail.email}, secretkey)
+      // console.log(token)
+      return res.send(`<script>
+        localStorage.setItem("token", "${token}");
+        location.href="./result.html"
+        </script>`)
     }
     else res.send(`<script>
       alert('Credentials do not match'); 
       location.href="./login.html"
     </script>`)
   }
+})
+
+app.get('/result', checkToken, (req,res) => {
+  res.send('Welcome authenticated user!')
 })
 
 app.listen(port, () => {
