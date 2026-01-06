@@ -6,7 +6,32 @@
     <title>Verdict</title>
  </head>
  <body>
-    <p id="result"></p>
-   WELCOME!!!
+   <script>
+      async function accessResult(){
+      const token= localStorage.getItem("token")
+      if(!token){
+         location.href="./login.html"
+         return
+      }
+      else{
+         const response= await fetch("/result", {
+            method:"GET",                          //tis default so no need
+            headers:{
+               "authorization":"Bearer " + token 
+            }
+         })
+         const data = await response.text();
+         document.getElementById('welcome').innerHTML=data
+      }
+      }
+      function removeToken(){
+         localStorage.removeItem("token");
+         location.href="./login.html"
+      }
+      accessResult();
+   </script>
+   <div id="welcome"></div>
+   <br><hr><br>
+   <button onclick=removeToken()> Logout </button>
  </body>
  </html>

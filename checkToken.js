@@ -1,7 +1,11 @@
 const jwt=require("jsonwebtoken")
 
 function checkToken(req, res, next){
-    const token = req.headers["authorization"]
+    let token = req.headers["authorization"];
+
+    if (token && token.startsWith("Bearer ")) {
+    token = token.slice(7);
+}
 
     if(!token){
         return res.redirect('/login.html')

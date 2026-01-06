@@ -76,7 +76,7 @@ app.post('/login', async function (req, res){
 })
 
 app.get('/result', checkToken, (req,res) => {
-  res.send('Welcome authenticated user!')
+  res.send('Welcome '+ req.user.email+ '!')
 })
 
 app.listen(port, () => {
