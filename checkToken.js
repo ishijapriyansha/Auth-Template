@@ -17,10 +17,7 @@ function checkToken(req, res, next){
     }
     catch (err){
         console.log(err);
-        return res.send(`<script> 
-            alert("Invalid Token");
-            window.location.href="/login.html";
-        </script>`)
+        return res.status(401).send("Invalid Token");
     }
 }
 
