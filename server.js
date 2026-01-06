@@ -29,7 +29,6 @@ app.post('/register',[body('email').isEmail(), body('pwd').isLength({min:3})],as
           alert('Invalid email or password too short')
           location.href="./register2.html"
           </script>`)
-
     }
     const email=req.body.email
     const password=req.body.pwd
